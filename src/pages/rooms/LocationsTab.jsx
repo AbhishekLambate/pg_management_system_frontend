@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { MapPin, RefreshCw, AlertCircle, Plus, Eye, Trash2, MoreVertical } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { getLocations, deleteLocation } from '../../helper/firebase_helper';
 import { Button } from '../../components/ui/Button';
 import AddLocationModal from './modals/AddLocationModal';
 import ViewLocationModal from './modals/ViewLocationModal';
 
 const LocationsTab = () => {
+    const { user } = useAuth();
     const [locations, setLocations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -40,9 +42,11 @@ const LocationsTab = () => {
                     <Button variant="ghost" className="gap-2 text-slate-400 hover:text-white" onClick={fetchLocations} disabled={loading}>
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
                     </Button>
-                    <Button className="gap-2" onClick={() => setShowAdd(true)}>
-                        <Plus size={15} /> Add Location
-                    </Button>
+                    {user?.role?.toLowerCase() === 'admin' && (
+                        <Button className="gap-2" onClick={() => setShowAdd(true)}>
+                            <Plus size={15} /> Add Location
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -52,7 +56,9 @@ const LocationsTab = () => {
                 <div className="glass-panel p-12 flex flex-col items-center gap-3">
                     <MapPin size={36} className="text-slate-600" />
                     <p className="text-slate-400 text-sm">No locations yet.</p>
-                    <Button className="gap-2" onClick={() => setShowAdd(true)}><Plus size={14} /> Add first location</Button>
+                    {user?.role?.toLowerCase() === 'admin' && (
+                        <Button className="gap-2" onClick={() => setShowAdd(true)}><Plus size={14} /> Add first location</Button>
+                    )}
                 </div>
             )}
             {!loading && !error && locations.length > 0 && (
@@ -71,30 +77,32 @@ const LocationsTab = () => {
                                 {locations.map((loc, i) => (
                                     <tr key={loc.id ?? loc._id ?? i}
                                         style={{ borderBottom: i < locations.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}
-                                        className="hover:bg-slate-800/30 transition-colors">
+                                        className="hover:bg-theme-muted/30 transition-colors">
                                         <td style={{ padding: '12px 14px' }}>
                                             <div className="flex items-center gap-2">
                                                 <MapPin size={14} className="text-indigo-400 flex-shrink-0" />
                                                 <span className="text-sm font-medium text-white">{loc.name}</span>
                                             </div>
                                         </td>
-                                        <td style={{ padding: '12px 14px' }}><span className="text-xs text-slate-300">{loc.city || '—'}</span></td>
-                                        <td style={{ padding: '12px 14px' }}><span className="text-xs text-slate-300">{loc.state || '—'}</span></td>
-                                        <td style={{ padding: '12px 14px' }}><span className="text-xs text-slate-300">{loc.pincode || '—'}</span></td>
+                                        <td style={{ padding: '12px 14px' }}><span className="text-xs text-theme-muted">{loc.city || '—'}</span></td>
+                                        <td style={{ padding: '12px 14px' }}><span className="text-xs text-theme-muted">{loc.state || '—'}</span></td>
+                                        <td style={{ padding: '12px 14px' }}><span className="text-xs text-theme-muted">{loc.pincode || '—'}</span></td>
                                         <td style={{ padding: '12px 14px', textAlign: 'center' }}>
                                             <div style={{ position: 'relative', display: 'inline-block' }}>
                                                 <button onClick={() => setMenuOpen(menuOpen === (loc.id ?? i) ? null : (loc.id ?? i))}
-                                                    className="text-slate-500 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-slate-700/50">
+                                                    className="text-theme-muted hover:text-white transition-colors p-1.5 rounded-lg hover:bg-theme-muted">
                                                     <MoreVertical size={15} />
                                                 </button>
                                                 {menuOpen === (loc.id ?? i) && (
-                                                    <div style={{ position: 'absolute', right: 0, top: '110%', zIndex: 50, minWidth: '120px', background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', padding: '6px' }}>
-                                                        <button onClick={() => { setMenuOpen(null); setViewItem(loc); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-indigo-500/20 rounded-lg transition-colors">
+                                                    <div className="glass-panel" style={{ position: 'absolute', right: 0, top: '110%', zIndex: 50, minWidth: '120px', padding: '6px' }}>
+                                                        <button onClick={() => { setMenuOpen(null); setViewItem(loc); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-theme-muted hover:text-white hover:bg-indigo-500/20 rounded-lg transition-colors">
                                                             <Eye size={13} className="text-indigo-400" /> View
                                                         </button>
-                                                        <button onClick={() => { setMenuOpen(null); handleDelete(loc); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-rose-500/20 rounded-lg transition-colors">
-                                                            <Trash2 size={13} className="text-rose-400" /> Delete
-                                                        </button>
+                                                        {user?.role?.toLowerCase() === 'admin' && (
+                                                            <button onClick={() => { setMenuOpen(null); handleDelete(loc); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-theme-muted hover:text-white hover:bg-rose-500/20 rounded-lg transition-colors">
+                                                                <Trash2 size={13} className="text-rose-400" /> Delete
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 )}
                                             </div>

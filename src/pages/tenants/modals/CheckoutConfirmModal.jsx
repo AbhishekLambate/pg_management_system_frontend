@@ -1,3 +1,4 @@
+import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import React, { useState } from 'react';
 import { LogOut, AlertCircle } from 'lucide-react';
 import { checkoutTenant } from '../../../helper/firebase_helper';
@@ -27,9 +28,8 @@ const CheckoutConfirmModal = ({ tenant, onClose, onSuccess }) => {
     };
 
     return (
-        <div onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-            style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-            <div className="glass-panel p-6" style={{ width: '100%', maxWidth: '400px', margin: '0 16px', textAlign: 'center' }}>
+        <Modal isOpen={true} toggle={onClose} centered className="theme-modal">
+            <ModalBody className="p-6 text-center">
                 <div className="w-12 h-12 rounded-full bg-amber-500/15 flex items-center justify-center text-amber-400 mx-auto mb-4">
                     <LogOut size={22} />
                 </div>
@@ -58,8 +58,8 @@ const CheckoutConfirmModal = ({ tenant, onClose, onSuccess }) => {
                         </Button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </ModalBody>
+        </Modal>
     );
 };
 

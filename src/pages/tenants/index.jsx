@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import {
     Users, RefreshCw, AlertCircle, UserPlus, Eye, Trash2,
     MoreVertical, DoorOpen, LogOut, Mail, Phone
@@ -9,8 +10,10 @@ import AddTenantModal from './modals/AddTenantModal';
 import ViewTenantModal from './modals/ViewTenantModal';
 import AssignRoomModal from './modals/AssignRoomModal';
 import CheckoutConfirmModal from './modals/CheckoutConfirmModal';
+import BreadCrumb from '../../components/Common/BreadCrumb';
 
 const Tenants = () => {
+    const { user: currentUser } = useAuth();
     const [tenants, setTenants] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -31,7 +34,12 @@ const Tenants = () => {
         } finally { setLoading(false); }
     };
 
-    useEffect(() => { fetchTenants(); }, []);
+    const useEffect = React.useEffect;
+    useEffect(() => {
+        if (currentUser?.role?.toLowerCase() === 'admin') {
+            fetchTenants();
+        }
+    }, [currentUser]);
 
     const handleDelete = async (t) => {
         if (!window.confirm(`Delete tenant "${t.full_name}"?`)) return;
@@ -53,14 +61,23 @@ const Tenants = () => {
         );
     };
 
+    if (currentUser?.role?.toLowerCase() !== 'admin') {
+        return (
+            <div className="glass-panel p-12 mt-10 flex flex-col items-center justify-center gap-3 text-center border-rose-500/20">
+                <AlertCircle size={48} className="text-rose-500 mb-2" />
+                <h2 className="text-2xl font-bold text-white">Access Denied</h2>
+                <p className="text-slate-400">Only administrators can manage tenants.</p>
+            </div>
+        );
+    }
+
     return (
         <>
-            {/* Page Heading */}
-            <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
-                <div>
-                    <h1 className="text-2xl font-bold text-white">Tenants</h1>
-                    <p className="text-slate-400 text-sm mt-1">Manage all PG residents.</p>
-                </div>
+            <BreadCrumb title="Tenants" pageTitle="Management" />
+
+            {/* Page Heading Controls */}
+            <div className="mb-4 flex items-center justify-between flex-wrap gap-3">
+                <p className="text-slate-400 mb-0">Manage all PG residents.</p>
                 <div className="flex items-center gap-3">
                     <Button variant="ghost" className="gap-2 text-slate-400 hover:text-white" onClick={fetchTenants} disabled={loading}>
                         <RefreshCw size={15} className={loading ? 'animate-spin' : ''} /> Refresh
@@ -106,91 +123,93 @@ const Tenants = () => {
                 </div>
             )}
 
-            {/* Table */}
+            {/* Adapted Table */}
             {!loading && !error && displayed.length > 0 && (
-                <div className="glass-panel p-4">
-                    <div className="overflow-x-auto">
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                                    {['Tenant', 'Contact', 'Room', 'Move-in', 'Status', 'Actions'].map(col => (
-                                        <th key={col} className="text-xs font-semibold text-slate-400 uppercase tracking-wider"
-                                            style={{ padding: '10px 14px', textAlign: col === 'Actions' ? 'center' : 'left' }}>{col}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {displayed.map((t, i) => (
-                                    <tr key={t.id ?? t._id ?? i}
-                                        style={{ borderBottom: i < displayed.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}
-                                        className="hover:bg-slate-800/30 transition-colors">
-
-                                        {/* Avatar + Name */}
-                                        <td style={{ padding: '13px 14px' }}>
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-9 h-9 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-sm flex-shrink-0">
-                                                    {(t.full_name || '?')[0].toUpperCase()}
-                                                </div>
-                                                <span className="text-sm font-medium text-white">{t.full_name || '—'}</span>
-                                            </div>
-                                        </td>
-
-                                        {/* Contact */}
-                                        <td style={{ padding: '13px 14px' }}>
-                                            <div className="flex flex-col gap-1">
-                                                {t.email && <span className="flex items-center gap-1 text-xs text-slate-300"><Mail size={11} className="text-slate-500" /> {t.email}</span>}
-                                                {t.phone && <span className="flex items-center gap-1 text-xs text-slate-400"><Phone size={11} className="text-slate-500" /> {t.phone}</span>}
-                                                {!t.email && !t.phone && <span className="text-xs text-slate-500">—</span>}
-                                            </div>
-                                        </td>
-
-                                        {/* Room */}
-                                        <td style={{ padding: '13px 14px' }}>
-                                            {t.room_number || t.room_id
-                                                ? <span className="inline-flex items-center gap-1 text-xs bg-indigo-500/15 text-indigo-400 px-2 py-0.5 rounded-full font-medium"><DoorOpen size={11} /> {t.room_number ?? t.room_id}</span>
-                                                : <span className="text-xs text-slate-500">No room</span>
-                                            }
-                                        </td>
-
-                                        {/* Move-in */}
-                                        <td style={{ padding: '13px 14px' }}>
-                                            <span className="text-xs text-slate-300">{t.move_in_date || '—'}</span>
-                                        </td>
-
-                                        {/* Status */}
-                                        <td style={{ padding: '13px 14px' }}>{statusBadge(t)}</td>
-
-                                        {/* Actions */}
-                                        <td style={{ padding: '13px 14px', textAlign: 'center' }}>
-                                            <div style={{ position: 'relative', display: 'inline-block' }}>
-                                                <button onClick={() => setMenuOpen(menuOpen === (t.id ?? i) ? null : (t.id ?? i))}
-                                                    className="text-slate-500 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-slate-700/50">
-                                                    <MoreVertical size={15} />
-                                                </button>
-                                                {menuOpen === (t.id ?? i) && (
-                                                    <div style={{ position: 'absolute', right: 0, top: '110%', zIndex: 50, minWidth: '150px', background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', padding: '6px' }}>
-                                                        <button onClick={() => { setMenuOpen(null); setViewTenant(t); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-indigo-500/20 rounded-lg transition-colors">
-                                                            <Eye size={13} className="text-indigo-400" /> View
-                                                        </button>
-                                                        <button onClick={() => { setMenuOpen(null); setAssignTenant(t); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-emerald-500/20 rounded-lg transition-colors">
-                                                            <DoorOpen size={13} className="text-emerald-400" /> Assign Room
-                                                        </button>
-                                                        {t.status !== 'checked_out' && (
-                                                            <button onClick={() => { setMenuOpen(null); setCheckoutTenant(t); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-amber-500/20 rounded-lg transition-colors">
-                                                                <LogOut size={13} className="text-amber-400" /> Checkout
-                                                            </button>
-                                                        )}
-                                                        <button onClick={() => { setMenuOpen(null); handleDelete(t); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-rose-500/20 rounded-lg transition-colors">
-                                                            <Trash2 size={13} className="text-rose-400" /> Delete
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </td>
+                <div className="card">
+                    <div className="card-header align-items-center d-flex border-bottom-0 pb-0">
+                        <h4 className="card-title mb-0 flex-grow-1">Tenants List</h4>
+                    </div>
+                    <div className="card-body">
+                        <div className="table-responsive table-card">
+                            <table className="table table-hover table-striped align-middle table-nowrap mb-0">
+                                <thead className="table-light">
+                                    <tr>
+                                        {['Tenant', 'Contact', 'Room', 'Move-in', 'Status', 'Actions'].map(col => (
+                                            <th key={col} className="text-muted text-uppercase fs-11"
+                                                style={{ padding: '12px 14px', textAlign: col === 'Actions' ? 'center' : 'left' }}>{col}</th>
+                                        ))}
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {displayed.map((t, i) => (
+                                        <tr key={t.id ?? t._id ?? i}>
+                                            {/* Avatar + Name */}
+                                            <td style={{ padding: '13px 14px' }}>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-9 h-9 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-sm flex-shrink-0">
+                                                        {(t.full_name || '?')[0].toUpperCase()}
+                                                    </div>
+                                                    <span className="text-sm font-medium text-white">{t.full_name || '—'}</span>
+                                                </div>
+                                            </td>
+
+                                            {/* Contact */}
+                                            <td style={{ padding: '13px 14px' }}>
+                                                <div className="flex flex-col gap-1">
+                                                    {t.email && <span className="flex items-center gap-1 text-xs text-slate-300"><Mail size={11} className="text-slate-500" /> {t.email}</span>}
+                                                    {t.phone && <span className="flex items-center gap-1 text-xs text-slate-400"><Phone size={11} className="text-slate-500" /> {t.phone}</span>}
+                                                    {!t.email && !t.phone && <span className="text-xs text-slate-500">—</span>}
+                                                </div>
+                                            </td>
+
+                                            {/* Room */}
+                                            <td style={{ padding: '13px 14px' }}>
+                                                {t.room_number || t.room_id
+                                                    ? <span className="inline-flex items-center gap-1 text-xs bg-indigo-500/15 text-indigo-400 px-2 py-0.5 rounded-full font-medium"><DoorOpen size={11} /> {t.room_number ?? t.room_id}</span>
+                                                    : <span className="text-xs text-slate-500">No room</span>
+                                                }
+                                            </td>
+
+                                            {/* Move-in */}
+                                            <td style={{ padding: '13px 14px' }}>
+                                                <span className="text-xs text-slate-300">{t.move_in_date || '—'}</span>
+                                            </td>
+
+                                            {/* Status */}
+                                            <td style={{ padding: '13px 14px' }}>{statusBadge(t)}</td>
+
+                                            {/* Actions */}
+                                            <td style={{ padding: '13px 14px', textAlign: 'center' }}>
+                                                <div style={{ position: 'relative', display: 'inline-block' }}>
+                                                    <button onClick={() => setMenuOpen(menuOpen === (t.id ?? i) ? null : (t.id ?? i))}
+                                                        className="text-theme-muted hover:text-white transition-colors p-1.5 rounded-lg hover:bg-theme-muted">
+                                                        <MoreVertical size={15} />
+                                                    </button>
+                                                    {menuOpen === (t.id ?? i) && (
+                                                        <div className="glass-panel" style={{ position: 'absolute', right: 0, top: '110%', zIndex: 50, minWidth: '150px', padding: '6px' }}>
+                                                            <button onClick={() => { setMenuOpen(null); setViewTenant(t); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-theme-muted hover:text-white hover:bg-indigo-500/20 rounded-lg transition-colors">
+                                                                <Eye size={13} className="text-indigo-400" /> View
+                                                            </button>
+                                                            <button onClick={() => { setMenuOpen(null); setAssignTenant(t); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-theme-muted hover:text-white hover:bg-emerald-500/20 rounded-lg transition-colors">
+                                                                <DoorOpen size={13} className="text-emerald-400" /> Assign Room
+                                                            </button>
+                                                            {t.status !== 'checked_out' && (
+                                                                <button onClick={() => { setMenuOpen(null); setCheckoutTenant(t); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-theme-muted hover:text-white hover:bg-amber-500/20 rounded-lg transition-colors">
+                                                                    <LogOut size={13} className="text-amber-400" /> Checkout
+                                                                </button>
+                                                            )}
+                                                            <button onClick={() => { setMenuOpen(null); handleDelete(t); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-theme-muted hover:text-white hover:bg-rose-500/20 rounded-lg transition-colors">
+                                                                <Trash2 size={13} className="text-rose-400" /> Delete
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             )}

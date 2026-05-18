@@ -1,3 +1,4 @@
+import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import React, { useState, useEffect } from 'react';
 import { X, AlertCircle, Users } from 'lucide-react';
 import { createTenant, getRooms } from '../../../helper/firebase_helper';
@@ -37,20 +38,10 @@ const AddTenantModal = ({ onClose, onSuccess }) => {
     };
 
     return (
-        <div onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-            style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-            <div className="glass-panel p-6" style={{ width: '100%', maxWidth: '520px', margin: '0 16px', maxHeight: '90vh', overflowY: 'auto' }}>
+        <Modal isOpen={true} toggle={onClose} centered className="theme-modal">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400"><Users size={18} /></div>
-                        <div>
-                            <h2 className="text-lg font-bold text-white">Add Tenant</h2>
-                            <p className="text-xs text-slate-400">Fill in tenant details</p>
-                        </div>
-                    </div>
-                    <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-700/50"><X size={18} /></button>
-                </div>
+                <ModalHeader toggle={onClose}>Add Tenant</ModalHeader>
+<ModalBody>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     {/* Personal */}
@@ -98,8 +89,8 @@ const AddTenantModal = ({ onClose, onSuccess }) => {
                         <Button type="submit" className="gap-2" isLoading={submitting} disabled={submitting}><Users size={15} /> Add Tenant</Button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </ModalBody>
+        </Modal>
     );
 };
 

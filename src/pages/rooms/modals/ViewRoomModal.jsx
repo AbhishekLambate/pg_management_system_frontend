@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../../context/AuthContext';
 import { updateRoom } from '../../../helper/firebase_helper';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
@@ -12,6 +13,7 @@ const ROOM_TYPES = [
 ];
 
 const ViewRoomModal = ({ room, onClose, onUpdated }) => {
+    const { user } = useAuth();
     const [editMode, setEditMode] = useState(false);
     const [form, setForm] = useState({
         room_number: room?.room_number || '',
@@ -50,7 +52,7 @@ const ViewRoomModal = ({ room, onClose, onUpdated }) => {
             <div className="glass-panel p-6" style={{ width: '100%', maxWidth: '420px', margin: '0 16px', maxHeight: '90vh', overflowY: 'auto' }}>
                 <div className="flex items-center justify-between mb-5">
                     <h2 className="text-lg font-bold text-white">{editMode ? 'Edit Room' : 'Room Details'}</h2>
-                    <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-700/50"><X size={18} /></button>
+                    <button onClick={onClose} className="text-theme-muted hover:text-white transition-colors p-1 rounded-lg hover:bg-theme-muted"><X size={18} /></button>
                 </div>
 
                 {/* Status badge */}
@@ -81,7 +83,9 @@ const ViewRoomModal = ({ room, onClose, onUpdated }) => {
                         </div>
                         <div className="flex gap-3 mt-5 justify-center">
                             <Button variant="outline" onClick={onClose}>Close</Button>
-                            <Button onClick={() => setEditMode(true)}>✏️ Edit</Button>
+                            {user?.role?.toLowerCase() === 'admin' && (
+                                <Button onClick={() => setEditMode(true)}>✏️ Edit</Button>
+                            )}
                         </div>
                     </>
                 ) : (

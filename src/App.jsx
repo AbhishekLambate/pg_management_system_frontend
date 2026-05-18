@@ -6,6 +6,12 @@ import Dashboard from './pages/Dashboard';
 import Users from './pages/users';
 import Rooms from './pages/rooms';
 import Tenants from './pages/tenants';
+import Payments from './pages/payments';
+import Staff from './pages/staff';
+import Complaints from './pages/complaints';
+import Expenses from './pages/expenses';
+import Visitors from './pages/visitors';
+import Notices from './pages/notices';
 import MainLayout from './layouts/MainLayout';
 
 const ProtectedRoute = ({ children }) => {
@@ -54,9 +60,13 @@ function App() {
             <Route path="/users" element={<Users />} />
             <Route path="/rooms" element={<Rooms />} />
             <Route path="/tenants" element={<Tenants />} />
+            <Route path="/payments" element={<Payments />} />
+            <Route path="/staff" element={<Staff />} />
+            <Route path="/complaints" element={<Complaints />} />
+            <Route path="/expenses" element={<Expenses />} />
+            <Route path="/visitors" element={<Visitors />} />
+            <Route path="/notices" element={<Notices />} />
             {/* Add more protected pages here:
-                <Route path="/tenants"  element={<Tenants />} />
-                <Route path="/payments" element={<Payments />} />
                 <Route path="/settings" element={<Settings />} />
             */}
           </Route>

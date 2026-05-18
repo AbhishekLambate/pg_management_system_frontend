@@ -41,3 +41,26 @@ export const deleteTenant = (id) => api_helper.delete(`/tenants/${id}`);
 export const assignRoom = (id, data) => api_helper.post(`/tenants/${id}/assign-room`, data);
 export const checkoutTenant = (id, data) => api_helper.post(`/tenants/${id}/checkout`, data);
 
+/* ── Staff ── */
+export const getStaff = () => api_helper.get('/staff/');
+export const createStaff = (data) => api_helper.post('/staff/', data);
+
+/* ── Complaints ── */
+export const getComplaints = () => api_helper.get('/complaints/');
+export const createComplaint = (data) => api_helper.post('/complaints/', data);
+
+/* ── Expenses ── */
+export const getExpenses = () => api_helper.get('/expenses/');
+export const createExpense = (data) => api_helper.post('/expenses/', data);
+
+/* ── Visitors ── */
+export const getVisitors = () => api_helper.get('/visitors/');
+export const createVisitor = (data) => api_helper.post('/visitors/', data);
+
+/* ── Notices ── */
+export const getNotices = () => api_helper.get('/notices/');
+export const createNotice = (data) => api_helper.post('/notices/', data);
+
+/* ── Payments & Dashboard ── */
+export const getPayments = () => api_helper.get('/payments/');
+export const getDashboardStats = () => api_helper.get('/dashboard/stats');

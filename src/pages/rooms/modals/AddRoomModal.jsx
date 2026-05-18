@@ -1,3 +1,4 @@
+import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import React, { useState, useEffect } from 'react';
 import { X, AlertCircle, DoorOpen } from 'lucide-react';
 import { createRoom, getBuildings } from '../../../helper/firebase_helper';
@@ -43,19 +44,9 @@ const AddRoomModal = ({ onClose, onSuccess }) => {
     };
 
     return (
-        <div onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-            style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-            <div className="glass-panel p-6" style={{ width: '100%', maxWidth: '480px', margin: '0 16px', maxHeight: '90vh', overflowY: 'auto' }}>
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400"><DoorOpen size={18} /></div>
-                        <div>
-                            <h2 className="text-lg font-bold text-white">Add Room</h2>
-                            <p className="text-xs text-slate-400">Fill in room details</p>
-                        </div>
-                    </div>
-                    <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-700/50"><X size={18} /></button>
-                </div>
+        <Modal isOpen={true} toggle={onClose} centered className="theme-modal">
+                <ModalHeader toggle={onClose}>Add Room</ModalHeader>
+<ModalBody>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                         <Input label="Room Number *" name="room_number" placeholder="101" value={form.room_number} onChange={handleChange} required />
@@ -80,13 +71,13 @@ const AddRoomModal = ({ onClose, onSuccess }) => {
                     </div>
                     <Input label="Description" name="description" placeholder="Optional notes" value={form.description} onChange={handleChange} />
                     {error && <div className="flex items-center gap-2 p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg"><AlertCircle size={14} className="text-rose-400 flex-shrink-0" /><p className="text-rose-400 text-xs">{error}</p></div>}
-                    <div className="flex gap-3 justify-center mt-1">
+                    </form>
+</ModalBody>
+<ModalFooter>
                         <Button type="button" variant="outline" onClick={onClose} disabled={submitting}>Cancel</Button>
                         <Button type="submit" className="gap-2" isLoading={submitting} disabled={submitting}><DoorOpen size={15} /> Add Room</Button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                    </ModalFooter>
+</Modal>
     );
 };
 

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { X, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../../context/AuthContext';
 import { updateBuilding } from '../../../helper/firebase_helper';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 
 const ViewBuildingModal = ({ building, onClose, onUpdated }) => {
+    const { user } = useAuth();
     const [editMode, setEditMode] = useState(false);
     const [form, setForm] = useState({
         name: building?.name || '',
@@ -34,7 +36,7 @@ const ViewBuildingModal = ({ building, onClose, onUpdated }) => {
             <div className="glass-panel p-6" style={{ width: '100%', maxWidth: '420px', margin: '0 16px' }}>
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-lg font-bold text-white">{editMode ? 'Edit Building' : 'Building Details'}</h2>
-                    <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-700/50"><X size={18} /></button>
+                    <button onClick={onClose} className="text-theme-muted hover:text-white transition-colors p-1 rounded-lg hover:bg-theme-muted"><X size={18} /></button>
                 </div>
                 {!editMode ? (
                     <>
@@ -53,7 +55,9 @@ const ViewBuildingModal = ({ building, onClose, onUpdated }) => {
                         </div>
                         <div className="flex gap-3 mt-5 justify-center">
                             <Button variant="outline" onClick={onClose}>Close</Button>
-                            <Button onClick={() => setEditMode(true)}>✏️ Edit</Button>
+                            {user?.role?.toLowerCase() === 'admin' && (
+                                <Button onClick={() => setEditMode(true)}>✏️ Edit</Button>
+                            )}
                         </div>
                     </>
                 ) : (

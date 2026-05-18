@@ -3,6 +3,7 @@ import { MapPin, Building2, DoorOpen } from 'lucide-react';
 import LocationsTab from './LocationsTab';
 import BuildingsTab from './BuildingsTab';
 import RoomsTab from './RoomsTab';
+import BreadCrumb from '../../components/Common/BreadCrumb';
 
 const TABS = [
     { key: 'locations', label: 'Locations', icon: MapPin },
@@ -15,10 +16,10 @@ const Rooms = () => {
 
     return (
         <>
-            {/* Page Heading */}
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold text-white">Rooms</h1>
-                <p className="text-slate-400 text-sm mt-1">
+            <BreadCrumb title="Rooms" pageTitle="Management" />
+
+            <div className="mb-4">
+                <p className="text-slate-400 text-sm mb-0">
                     Manage locations, buildings and rooms in your PG.
                 </p>
             </div>

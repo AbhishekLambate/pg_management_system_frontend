@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { X, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import api_helper from '../../helper/api_helper';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 
 const ViewUserModal = ({ user, onClose, onUpdated }) => {
+    const { user: currentUser } = useAuth();
     const [editMode, setEditMode] = useState(false);
     const [form, setForm] = useState({
         username: user?.username || '',
@@ -53,7 +55,7 @@ const ViewUserModal = ({ user, onClose, onUpdated }) => {
                     <h2 className="text-lg font-bold text-white">
                         {editMode ? 'Edit User' : 'User Details'}
                     </h2>
-                    <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-700/50">
+                    <button onClick={onClose} className="text-theme-muted hover:text-white transition-colors p-1 rounded-lg hover:bg-theme-muted">
                         <X size={18} />
                     </button>
                 </div>
@@ -120,7 +122,7 @@ const ViewUserModal = ({ user, onClose, onUpdated }) => {
 
                         <div className="input-group">
                             <label className="input-label">Role</label>
-                            <select name="role" value={form.role} onChange={handleChange} className="input-field" style={{ cursor: 'pointer' }}>
+                            <select name="role" value={form.role} onChange={handleChange} className="input-field" style={{ cursor: currentUser?.role?.toLowerCase() === 'admin' ? 'pointer' : 'not-allowed' }} disabled={currentUser?.role?.toLowerCase() !== 'admin'}>
                                 <option value="user">User</option>
                                 <option value="admin">Admin</option>
                             </select>

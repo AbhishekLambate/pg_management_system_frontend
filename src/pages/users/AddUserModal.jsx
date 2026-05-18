@@ -1,3 +1,4 @@
+import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import React, { useState } from 'react';
 import { X, Eye, EyeOff, UserPlus, AlertCircle } from 'lucide-react';
 import { authRegister } from '../../helper/firebase_helper';
@@ -41,20 +42,8 @@ const AddUserModal = ({ onClose, onSuccess }) => {
         >
             <div className="glass-panel p-6" style={{ width: '100%', maxWidth: '460px', margin: '0 16px' }}>
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
-                            <UserPlus size={18} />
-                        </div>
-                        <div>
-                            <h2 className="text-lg font-bold text-white">Add New User</h2>
-                            <p className="text-xs text-slate-400">Fill in the details below</p>
-                        </div>
-                    </div>
-                    <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-700/50">
-                        <X size={18} />
-                    </button>
-                </div>
+                <ModalHeader toggle={onClose}>Add New User</ModalHeader>
+<ModalBody>
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -79,7 +68,7 @@ const AddUserModal = ({ onClose, onSuccess }) => {
                                 type="button"
                                 onClick={() => setShowPassword(p => !p)}
                                 style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)' }}
-                                className="text-slate-500 hover:text-slate-300 transition-colors"
+                                className="text-slate-500 hover:text-theme-muted transition-colors"
                             >
                                 {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                             </button>
@@ -111,6 +100,7 @@ const AddUserModal = ({ onClose, onSuccess }) => {
                         </Button>
                     </div>
                 </form>
+                </ModalBody>
             </div>
         </div>
     );

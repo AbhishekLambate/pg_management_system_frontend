@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Building2, RefreshCw, AlertCircle, Plus, Eye, Trash2, MoreVertical } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { getBuildings, getLocations, deleteBuilding } from '../../helper/firebase_helper';
 import { Button } from '../../components/ui/Button';
 import AddBuildingModal from './modals/AddBuildingModal';
 import ViewBuildingModal from './modals/ViewBuildingModal';
 
 const BuildingsTab = () => {
+    const { user } = useAuth();
     const [buildings, setBuildings] = useState([]);
     const [locations, setLocations] = useState([]);
     const [filterLoc, setFilterLoc] = useState('');
@@ -58,7 +60,9 @@ const BuildingsTab = () => {
                     <Button variant="ghost" className="gap-2 text-slate-400 hover:text-white" onClick={fetchAll} disabled={loading}>
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
                     </Button>
-                    <Button className="gap-2" onClick={() => setShowAdd(true)}><Plus size={15} /> Add Building</Button>
+                    {user?.role?.toLowerCase() === 'admin' && (
+                        <Button className="gap-2" onClick={() => setShowAdd(true)}><Plus size={15} /> Add Building</Button>
+                    )}
                 </div>
             </div>
 
@@ -68,7 +72,9 @@ const BuildingsTab = () => {
                 <div className="glass-panel p-12 flex flex-col items-center gap-3">
                     <Building2 size={36} className="text-slate-600" />
                     <p className="text-slate-400 text-sm">No buildings found.</p>
-                    <Button className="gap-2" onClick={() => setShowAdd(true)}><Plus size={14} /> Add first building</Button>
+                    {user?.role?.toLowerCase() === 'admin' && (
+                        <Button className="gap-2" onClick={() => setShowAdd(true)}><Plus size={14} /> Add first building</Button>
+                    )}
                 </div>
             )}
             {!loading && !error && filtered.length > 0 && (
@@ -87,30 +93,32 @@ const BuildingsTab = () => {
                                 {filtered.map((b, i) => (
                                     <tr key={b.id ?? b._id ?? i}
                                         style={{ borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}
-                                        className="hover:bg-slate-800/30 transition-colors">
+                                        className="hover:bg-theme-muted/30 transition-colors">
                                         <td style={{ padding: '12px 14px' }}>
                                             <div className="flex items-center gap-2">
                                                 <Building2 size={14} className="text-indigo-400 flex-shrink-0" />
                                                 <span className="text-sm font-medium text-white">{b.name}</span>
                                             </div>
                                         </td>
-                                        <td style={{ padding: '12px 14px' }}><span className="text-xs text-slate-300">{locName(b)}</span></td>
-                                        <td style={{ padding: '12px 14px' }}><span className="text-xs text-slate-300">{b.total_floors ?? '—'}</span></td>
+                                        <td style={{ padding: '12px 14px' }}><span className="text-xs text-theme-muted">{locName(b)}</span></td>
+                                        <td style={{ padding: '12px 14px' }}><span className="text-xs text-theme-muted">{b.total_floors ?? '—'}</span></td>
                                         <td style={{ padding: '12px 14px' }}><span className="text-xs text-slate-400">{b.description || '—'}</span></td>
                                         <td style={{ padding: '12px 14px', textAlign: 'center' }}>
                                             <div style={{ position: 'relative', display: 'inline-block' }}>
                                                 <button onClick={() => setMenuOpen(menuOpen === (b.id ?? i) ? null : (b.id ?? i))}
-                                                    className="text-slate-500 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-slate-700/50">
+                                                    className="text-theme-muted hover:text-white transition-colors p-1.5 rounded-lg hover:bg-theme-muted">
                                                     <MoreVertical size={15} />
                                                 </button>
                                                 {menuOpen === (b.id ?? i) && (
-                                                    <div style={{ position: 'absolute', right: 0, top: '110%', zIndex: 50, minWidth: '120px', background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', padding: '6px' }}>
-                                                        <button onClick={() => { setMenuOpen(null); setViewItem(b); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-indigo-500/20 rounded-lg transition-colors">
+                                                    <div className="glass-panel" style={{ position: 'absolute', right: 0, top: '110%', zIndex: 50, minWidth: '120px', padding: '6px' }}>
+                                                        <button onClick={() => { setMenuOpen(null); setViewItem(b); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-theme-muted hover:text-white hover:bg-indigo-500/20 rounded-lg transition-colors">
                                                             <Eye size={13} className="text-indigo-400" /> View
                                                         </button>
-                                                        <button onClick={() => { setMenuOpen(null); handleDelete(b); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-rose-500/20 rounded-lg transition-colors">
-                                                            <Trash2 size={13} className="text-rose-400" /> Delete
-                                                        </button>
+                                                        {user?.role?.toLowerCase() === 'admin' && (
+                                                            <button onClick={() => { setMenuOpen(null); handleDelete(b); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-theme-muted hover:text-white hover:bg-rose-500/20 rounded-lg transition-colors">
+                                                                <Trash2 size={13} className="text-rose-400" /> Delete
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 )}
                                             </div>

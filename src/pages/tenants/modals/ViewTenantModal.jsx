@@ -57,7 +57,7 @@ const ViewTenantModal = ({ tenant, onClose, onUpdated }) => {
             <div className="glass-panel p-6" style={{ width: '100%', maxWidth: '440px', margin: '0 16px', maxHeight: '90vh', overflowY: 'auto' }}>
                 <div className="flex items-center justify-between mb-5">
                     <h2 className="text-lg font-bold text-white">{editMode ? 'Edit Tenant' : 'Tenant Details'}</h2>
-                    <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-700/50"><X size={18} /></button>
+                    <button onClick={onClose} className="text-theme-muted hover:text-white transition-colors p-1 rounded-lg hover:bg-theme-muted"><X size={18} /></button>
                 </div>
 
                 {/* Avatar */}
